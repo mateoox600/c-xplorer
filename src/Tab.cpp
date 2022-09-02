@@ -30,11 +30,8 @@ void Tab::update() {
     }
 
     if(IsMouseButtonPressed(MOUSE_BUTTON_SIDE)) {
-        printf("%s\n", currentPath.c_str());
         currentPath = currentPath.substr(0, currentPath.size() - 1);
-        printf("%s\n", currentPath.c_str());
         currentPath = currentPath.substr(0, currentPath.find_last_of("/") + 1);
-        printf("%s\n", currentPath.c_str());
         cachedFolders.clear();
     }
 
