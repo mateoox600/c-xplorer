@@ -2,7 +2,10 @@
 #include "raylib-cpp.hpp"
 
 #include "Constants.hpp"
+#include "Global.hpp"
 #include "Tab.hpp"
+
+Global global;
 
 int main(int argc, char *argv[]) {
 
@@ -10,20 +13,22 @@ int main(int argc, char *argv[]) {
 
     window.SetTargetFPS(60);
 
-    Tab currentTab;
+    global = Global{
+        &window
+    };
 
     while(!window.ShouldClose()) {
 
         // Update
         // --------------------
-        currentTab.update();
+        global.tab.update();
 
         // Draw
         // --------------------
         window.BeginDrawing();
             window.ClearBackground(raylib::Color(25, 25, 25));
 
-            currentTab.draw();
+            global.tab.draw();
 
         window.EndDrawing();
 

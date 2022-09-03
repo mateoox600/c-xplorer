@@ -10,21 +10,21 @@ Tab::Tab() {
 
 }
 
-std::vector<std::string> Tab::getCurrentFolderContent() {
-    return raylib::LoadDirectoryFiles(currentPath);
-}
-
 void Tab::update() {
-    if(cachedFolders.size() <= 0) {
+    if(elements.size() <= 0) {
         std::vector<std::string> folderContent = getCurrentFolderContent();
         for(int i = 0; i < folderContent.size(); i++) {
             std::string element = folderContent[i];
-            const char* name = GetFileNameWithoutExt(element.c_str());
-            const char* extension = GetFileExtension(element.c_str());
-            if(extension == NULL) {
-                cachedFolders.push_back(Folder(name));
+            if(IsPathFile(element.c_str())) {
+                const char* name = GetFileNameWithoutExt(element.c_str());
+                const char* extension = GetFileExtension(element.c_str());
+                if(extension == NULL) {
+                    extension = "";
+                }
+                elements.push_back(TabElement(1, name, extension));
             }else {
-                printf("File: %s;%s\n", name, extension);
+                const char* name = GetFileName(element.c_str());
+                elements.push_back(TabElement(0, name, ""));
             }
         }
     }
@@ -32,7 +32,7 @@ void Tab::update() {
     if(IsMouseButtonPressed(MOUSE_BUTTON_SIDE)) {
         currentPath = currentPath.substr(0, currentPath.size() - 1);
         currentPath = currentPath.substr(0, currentPath.find_last_of("/") + 1);
-        cachedFolders.clear();
+        refresh();
     }
 
     raylib::Vector2 mousePosition = GetMousePosition();
@@ -60,23 +60,15 @@ void Tab::update() {
         }
     }
 
-    for(int i = 0; i < cachedFolders.size(); i++) {
-        Folder* folder = &cachedFolders[i];
-        bool wasSelected = folder->update(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
+    for(int i = 0; i < elements.size(); i++) {
+        TabElement* element = &elements[i];
+        bool wasSelected = element->update(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
         if(wasSelected) {
-            if(folder->isSelected()) {
-                if(folder->getSelectAt() + 0.5 > GetTime()) {
-                    currentPath += folder->getName() + "/";
-                    cachedFolders.clear();
-                    break;
-                }else {
-                    folder->deselect();
-                }
+            if(element->isSelected() && element->getSelectAt() + 0.5 > GetTime()) {
+                element->trigger();
             }else {
-                for(int i = 0; i < cachedFolders.size(); i++) {
-                    cachedFolders[i].deselect();
-                }
-                folder->select();
+                resetSelected();
+                element->select();
             }
         }
     }
@@ -91,7 +83,26 @@ void Tab::draw() {
     DrawText("Name", 14, yOffset + 10, 22, WHITE);
     DrawRectangle(nameWidth + nameStringWidth + 14, yOffset + 6, 1, 30, WHITE);
 
-    for(int i = 0; i < cachedFolders.size(); i++) {
-        cachedFolders[i].draw(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
+    for(int i = 0; i < elements.size(); i++) {
+        elements[i].draw(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
     }
+
+}
+
+void Tab::resetSelected() {
+    for(int i = 0; i < elements.size(); i++) {
+        elements[i].deselect();
+    }
+}
+
+void Tab::refresh() {
+    elements.clear();
+}
+
+void Tab::navigate(std::string path) {
+    currentPath += path;
+}
+
+std::vector<std::string> Tab::getCurrentFolderContent() {
+    return raylib::LoadDirectoryFiles(currentPath);
 }

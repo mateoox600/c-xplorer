@@ -4,12 +4,15 @@
 #include <string>
 #include <vector>
 
-#include "Folder.hpp"
+#include "Path.hpp"
+#include "TabElement.hpp"
 
 class Tab {
 private:
-    std::string currentPath = "C:/Users/matbo/Documents/Dev/C-C++/c-xplorer/test/";
-    std::vector<Folder> cachedFolders;
+    std::string currentPath = Path::formatPath(raylib::GetWorkingDirectory());
+
+    std::vector<TabElement> elements;
+
     int headerHeight = 50;
     int yOffset = 75;
     int nameStringWidth = raylib::MeasureText("Name", 22);
@@ -20,8 +23,12 @@ private:
 public:
     Tab();
 
-    std::vector<std::string> getCurrentFolderContent();
-
     void update();
     void draw();
+
+    void resetSelected();
+    void refresh();
+    void navigate(std::string path);
+    
+    std::vector<std::string> getCurrentFolderContent();
 };
