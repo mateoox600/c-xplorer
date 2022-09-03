@@ -60,10 +60,12 @@ void Tab::update() {
         }
     }
 
+    bool oneSelected = false;
     for(int i = 0; i < elements.size(); i++) {
         TabElement* element = &elements[i];
         bool wasSelected = element->update(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
         if(wasSelected) {
+            oneSelected = true;
             if(element->isSelected() && element->getSelectAt() + 0.5 > GetTime()) {
                 element->trigger();
             }else {
@@ -71,6 +73,9 @@ void Tab::update() {
                 element->select();
             }
         }
+    }
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !oneSelected) {
+        resetSelected();
     }
 }
 
