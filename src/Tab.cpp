@@ -1,5 +1,6 @@
 #include "Tab.hpp"
 
+#include <algorithm>
 #include "math.h"
 
 #include "Constants.hpp"
@@ -21,13 +22,17 @@ void Tab::update() {
                 if(extension == NULL) {
                     extension = "";
                 }
-                elements.push_back(TabElement(1, name, extension));
+                elements.push_back(TabElement(FILE, name, extension));
             }else {
                 const char* name = GetFileName(element.c_str());
-                elements.push_back(TabElement(0, name, ""));
+                elements.push_back(TabElement(FOLDER, name, ""));
             }
         }
+        sortElements();
     }
+
+    scrolled -= GetMouseWheelMove();
+    scrolled = std::max(std::min(scrolled, (int) elements.size() - 1), 0);
 
     if(IsMouseButtonPressed(MOUSE_BUTTON_SIDE)) {
         currentPath = currentPath.substr(0, currentPath.size() - 1);
@@ -46,24 +51,20 @@ void Tab::update() {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 
-    if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-        if(changingNameWidth) {
-            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-            changingNameWidth = false;
-        }
+    if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && changingNameWidth) {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        changingNameWidth = false;
     }
 
-    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        if(changingNameWidth) {
-            raylib::Vector2 mousePosition = GetMousePosition();
-            nameWidth = std::max((int) mousePosition.x - nameStringWidth - 14, 0);
-        }
+    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && changingNameWidth) {
+        raylib::Vector2 mousePosition = GetMousePosition();
+        nameWidth = std::max((int) mousePosition.x - nameStringWidth - 14, 0);
     }
 
     bool oneSelected = false;
-    for(int i = 0; i < elements.size(); i++) {
+    for(int i = scrolled; i < elements.size(); i++) {
         TabElement* element = &elements[i];
-        bool wasSelected = element->update(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
+        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 30, nameWidth + nameStringWidth, changingNameWidth);
         if(wasSelected) {
             oneSelected = true;
             if(element->isSelected() && element->getSelectAt() + 0.5 > GetTime()) {
@@ -88,8 +89,8 @@ void Tab::draw() {
     DrawText("Name", 14, yOffset + 10, 22, WHITE);
     DrawRectangle(nameWidth + nameStringWidth + 14, yOffset + 6, 1, 30, WHITE);
 
-    for(int i = 0; i < elements.size(); i++) {
-        elements[i].draw(i, yOffset + headerHeight, nameWidth + nameStringWidth, changingNameWidth);
+    for(int i = scrolled; i < elements.size(); i++) {
+        elements[i].draw(i, yOffset + headerHeight - scrolled * 30, nameWidth + nameStringWidth);
     }
 
 }
@@ -102,10 +103,23 @@ void Tab::resetSelected() {
 
 void Tab::refresh() {
     elements.clear();
+    scrolled = 0;
+}
+
+bool sortElement(TabElement el1, TabElement el2) {
+    if(el1.getType() == FOLDER && el2.getType() == FILE) return true;
+    else if(el1.getType() == FILE && el2.getType() == FOLDER) return false;
+
+    return el1.getName().compare(el2.getName()) == -1 ? true : false;
+}
+
+void Tab::sortElements() {
+    std::sort(elements.begin(), elements.end(), sortElement);
 }
 
 void Tab::navigate(std::string path) {
     currentPath += path;
+    refresh();
 }
 
 std::vector<std::string> Tab::getCurrentFolderContent() {

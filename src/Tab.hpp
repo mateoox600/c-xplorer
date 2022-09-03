@@ -19,6 +19,8 @@ private:
 
     int changingNameWidth = false;
     int nameWidth = 400;
+
+    int scrolled = 0;
     
 public:
     Tab();
@@ -28,6 +30,7 @@ public:
 
     void resetSelected();
     void refresh();
+    void sortElements();
     void navigate(std::string path);
     
     std::vector<std::string> getCurrentFolderContent();
