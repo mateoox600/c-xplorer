@@ -30,6 +30,8 @@ file(GLOB_RECURSE SRC CONFIGURE_DEPENDS
      "src/*.cpp"
 )
 
-add_executable(${PROJECT_NAME} ${SRC})
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 11)
+add_executable(${PROJECT_NAME} ${SRC} ${RESOURCES})
 target_link_libraries(${PROJECT_NAME} PUBLIC raylib raylib_cpp)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 11
+)

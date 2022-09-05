@@ -17,15 +17,9 @@ void Tab::update() {
         for(int i = 0; i < folderContent.size(); i++) {
             std::string element = folderContent[i];
             if(IsPathFile(element.c_str())) {
-                const char* name = GetFileNameWithoutExt(element.c_str());
-                const char* extension = GetFileExtension(element.c_str());
-                if(extension == NULL) {
-                    extension = "";
-                }
-                elements.push_back(TabElement(FILE, name, extension));
+                elements.push_back(TabElement(FILE, element));
             }else {
-                const char* name = GetFileName(element.c_str());
-                elements.push_back(TabElement(FOLDER, name, ""));
+                elements.push_back(TabElement(FOLDER, element));
             }
         }
         sortElements();
@@ -41,30 +35,59 @@ void Tab::update() {
     }
 
     raylib::Vector2 mousePosition = GetMousePosition();
-    int xPosition = nameWidth + nameStringWidth + 14;
-    if(mousePosition.x >= xPosition - 4 && mousePosition.x < xPosition + 4 && mousePosition.y >= yOffset + 6 - 4 && mousePosition.y < yOffset + 6 + 30 + 4) {
+    int xNamePosition = nameWidth + nameStringWidth + 14;
+    int xTypePosition = xNamePosition + 14 + typeWidth + typeStringWidth;
+    int xSizePosition = xTypePosition + 14 + sizeWidth + sizeStringWidth;
+    if(mousePosition.x >= xNamePosition - 4 && mousePosition.x < xNamePosition + 4 && mousePosition.y >= yOffset + 6 - 4 && mousePosition.y < yOffset + 6 + 30 + 4) {
         SetMouseCursor(MOUSE_CURSOR_RESIZE_EW);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             changingNameWidth = true;
+        }
+    }else if(mousePosition.x >= xTypePosition - 4 && mousePosition.x < xTypePosition + 4 && mousePosition.y >= yOffset + 6 - 4 && mousePosition.y < yOffset + 6 + 30 + 4) {
+        SetMouseCursor(MOUSE_CURSOR_RESIZE_EW);
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            changingTypeWidth = true;
+        }
+    }else if(mousePosition.x >= xSizePosition - 4 && mousePosition.x < xSizePosition + 4 && mousePosition.y >= yOffset + 6 - 4 && mousePosition.y < yOffset + 6 + 30 + 4) {
+        SetMouseCursor(MOUSE_CURSOR_RESIZE_EW);
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            changingSizeWidth = true;
         }
     }else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 
-    if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && changingNameWidth) {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-        changingNameWidth = false;
+    if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+        if(changingNameWidth) {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            changingNameWidth = false;
+        }else if(changingTypeWidth) {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            changingTypeWidth = false;
+        }else if(changingSizeWidth) {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            changingSizeWidth = false;
+        }
     }
 
-    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && changingNameWidth) {
+    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         raylib::Vector2 mousePosition = GetMousePosition();
-        nameWidth = std::max((int) mousePosition.x - nameStringWidth - 14, 0);
+        if(changingNameWidth) {
+            nameWidth = std::max((int) mousePosition.x - nameStringWidth - 14, 0);
+        }else if(changingTypeWidth) {
+            int xNamePosition = nameWidth + nameStringWidth + 14;
+            typeWidth = std::max((int) mousePosition.x - xNamePosition - 14 - typeStringWidth, 0);
+        }else if(changingSizeWidth) {
+            int xNamePosition = nameWidth + nameStringWidth + 14;
+            int xTypePosition = xNamePosition + typeWidth + typeStringWidth + 14;
+            sizeWidth = std::max((int) mousePosition.x - xTypePosition - 14 - sizeStringWidth, 0);
+        }
     }
 
     bool oneSelected = false;
     for(int i = scrolled; i < elements.size(); i++) {
         TabElement* element = &elements[i];
-        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 30, nameWidth + nameStringWidth, changingNameWidth);
+        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 26, nameWidth + nameStringWidth + 14 + typeWidth + typeStringWidth, changingNameWidth);
         if(wasSelected) {
             oneSelected = true;
             if(element->isSelected() && element->getSelectAt() + 0.5 > GetTime()) {
@@ -86,11 +109,21 @@ void Tab::draw() {
     DrawRectangle(6, yOffset, screenWidth - 12, screenHeight - yOffset - 6, raylib::Color(32, 32, 32));
     DrawRectangleLines(6, yOffset, screenWidth - 12, screenHeight - yOffset - 6, raylib::Color(43, 43, 43));
 
-    DrawText("Name", 14, yOffset + 10, 22, WHITE);
-    DrawRectangle(nameWidth + nameStringWidth + 14, yOffset + 6, 1, 30, WHITE);
+    DrawText("Name", 16, yOffset + 10, 22, WHITE);
+    int nameOffset = nameWidth + nameStringWidth + 16;
+    DrawRectangle(nameOffset, yOffset + 6, 1, 30, WHITE);
 
+    DrawText("Type", nameOffset + 14, yOffset + 10, 22, WHITE);
+    int typeOffset = nameOffset + 14 + typeWidth + typeStringWidth;
+    DrawRectangle(typeOffset, yOffset + 6, 1, 30, WHITE);
+
+    DrawText("Size", typeOffset + 14, yOffset + 10, 22, WHITE);
+    int sizeOffset = typeOffset + 14 + sizeWidth + sizeStringWidth;
+    DrawRectangle(sizeOffset, yOffset + 6, 1, 30, WHITE);
+
+    int elementsWidth = nameWidth + nameStringWidth + 14 + typeWidth + typeStringWidth + 14 + sizeWidth + sizeStringWidth;
     for(int i = scrolled; i < elements.size(); i++) {
-        elements[i].draw(i, yOffset + headerHeight - scrolled * 30, nameWidth + nameStringWidth);
+        elements[i].draw(i, yOffset + headerHeight - scrolled * 26, elementsWidth, nameOffset + 16, typeOffset + 16);
     }
 
 }

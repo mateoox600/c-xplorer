@@ -5,12 +5,41 @@
 
 #include "Global.hpp"
 
-TabElement::TabElement(int type, std::string name, std::string ext) : type(type), name(name), ext(ext) {
+TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fullPath) {
 
+    switch (type) {
+        case FOLDER:
+            name = GetFileName(fullPath.c_str());
+            fileSize = -1;
+            ext = "";
+
+            drawName = name;
+            drawTypeName = "Folder";
+            drawTypeColor = raylib::Color(255, 231, 146);
+            break;
+        case FILE:
+            name = GetFileNameWithoutExt(fullPath.c_str());
+            fileSize = GetFileLength(fullPath.c_str());
+            const char* extension = GetFileExtension(fullPath.c_str());
+            if(extension == NULL) {
+                extension = "";
+            }
+            ext = extension;
+            extInfo = Extension::getInfoForExt(ext);
+            if(extInfo.icon != "") {
+                iconName = extInfo.icon;
+                hasIcon = true;
+            }
+
+            drawName = name + ext;
+            drawTypeName = extInfo.type;
+            drawTypeColor = extInfo.color;
+            break;
+    }
 }
 
 bool TabElement::update(int idx, int yOffset, int width, bool disable) {
-    int height = 30;
+    int height = 26;
     int minX = 16;
     int minY = yOffset + idx * height;
     raylib::Vector2 mousePosition = GetMousePosition();
@@ -28,8 +57,8 @@ bool TabElement::update(int idx, int yOffset, int width, bool disable) {
     return wasSelected;
 }
 
-void TabElement::draw(int idx, int yOffset, int width) {
-    int height = 30;
+void TabElement::draw(int idx, int yOffset, int width, int typeOffset, int sizeOffset) {
+    int height = 26;
     int minX = 16;
     int minY = yOffset + idx * height;
 
@@ -41,28 +70,28 @@ void TabElement::draw(int idx, int yOffset, int width) {
     }
     DrawRectangle(minX, minY, width, height, background);
 
-    std::string fullName;
-    raylib::Color color;
-
-    switch (type) {
-        case FOLDER:
-            fullName = name;
-            color = raylib::Color(255, 231, 146);
-            break;
-        case FILE:
-            fullName = name + ext;
-            color = raylib::Color(255, 0, 0);
-            break;
+    if(!hasIcon) {
+        DrawRectangle(minX + 6, minY + 4, 18, 18, drawTypeColor);
+    }else {
+        global.extensionsTextures[iconName].Draw(minX + 6, minY + 4, WHITE);
     }
-
-    DrawRectangle(minX + 6, minY + 4, 22, 22, color);
-    raylib::DrawText(fullName, minX + 36, minY + 4, 22, WHITE);
+    raylib::DrawText(drawName, minX + 36, minY + 4, 18, WHITE);
+    raylib::DrawText(drawTypeName, typeOffset, minY + 4, 18, WHITE);
+    if(fileSize != -1) {
+        raylib::DrawText(std::to_string(fileSize), sizeOffset, minY + 4, 18, WHITE);
+    }
 }
 
 void TabElement::trigger() {
     switch (type) {
         case FOLDER:
             global.tab.navigate(name + "/");
+            break;
+        case FILE:
+            ExtensionInfo extensionInfo = Extension::getInfoForExt(ext);
+            if(extensionInfo.executable != "") {
+                system((extensionInfo.executable + " " + fullPath).c_str());
+            }
             break;
     }
 }
