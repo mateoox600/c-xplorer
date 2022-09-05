@@ -12,7 +12,7 @@
 struct Global {
 
     Global() { }
-    Global(raylib::Window* window) : window(window) {
+    Global(raylib::Window* window) : window(window), mainFont(raylib::Font((Constants::ressourcesBasePath + "/Roboto-Regular.ttf"), 22)) {
         std::vector<std::string> extensionsFiles = raylib::LoadDirectoryFiles(Constants::ressourcesBasePath + "/extensions");
         for(int i = 0; i < extensionsFiles.size(); i++) {
             extensionsTextures[raylib::GetFileNameWithoutExt(extensionsFiles[i])] = raylib::Texture2D(extensionsFiles[i]);
@@ -24,6 +24,7 @@ struct Global {
     Tab tab;
 
     std::map<std::string, raylib::Texture2D> extensionsTextures {};
+    raylib::Font mainFont;
 
 };
 

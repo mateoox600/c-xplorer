@@ -4,11 +4,17 @@
 #include "math.h"
 
 #include "Constants.hpp"
+#include "Global.hpp"
 
 using namespace Constants;
 
 Tab::Tab() {
+}
 
+void Tab::init() {
+    nameStringWidth = MeasureTextEx(global.mainFont, "Name", 22, 0).x;
+    typeStringWidth = MeasureTextEx(global.mainFont, "Type", 22, 0).x;
+    sizeStringWidth = MeasureTextEx(global.mainFont, "Size", 22, 0).x;
 }
 
 void Tab::update() {
@@ -108,20 +114,20 @@ void Tab::update() {
 }
 
 void Tab::draw() {
-    raylib::DrawText(currentPath, 10, 10, 16, WHITE);
+    raylib::DrawTextEx(global.mainFont, currentPath, raylib::Vector2(10, 10), 22, 0, WHITE);
 
     DrawRectangle(6, yOffset, screenWidth - 12, screenHeight - yOffset - 6, raylib::Color(32, 32, 32));
     DrawRectangleLines(6, yOffset, screenWidth - 12, screenHeight - yOffset - 6, raylib::Color(43, 43, 43));
 
-    DrawText("Name", 16, yOffset + 10, 22, WHITE);
+    raylib::DrawTextEx(global.mainFont, "Name", raylib::Vector2(16, yOffset + 10), 22, 0, WHITE);
     int nameOffset = nameWidth + nameStringWidth + 16;
     DrawRectangle(nameOffset, yOffset + 6, 1, 30, WHITE);
 
-    DrawText("Type", nameOffset + 14, yOffset + 10, 22, WHITE);
+    raylib::DrawTextEx(global.mainFont, "Type", raylib::Vector2(nameOffset + 14, yOffset + 10), 22, 0, WHITE);
     int typeOffset = nameOffset + 14 + typeWidth + typeStringWidth;
     DrawRectangle(typeOffset, yOffset + 6, 1, 30, WHITE);
 
-    DrawText("Size", typeOffset + 14, yOffset + 10, 22, WHITE);
+    raylib::DrawTextEx(global.mainFont, "Size", raylib::Vector2(typeOffset + 14, yOffset + 10), 22, 0, WHITE);
     int sizeOffset = typeOffset + 14 + sizeWidth + sizeStringWidth;
     DrawRectangle(sizeOffset, yOffset + 6, 1, 30, WHITE);
 

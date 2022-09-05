@@ -16,15 +16,15 @@ private:
     int headerHeight = 50;
     int yOffset = 75;
 
-    int nameStringWidth = raylib::MeasureText("Name", 22);
+    int nameStringWidth;
     bool changingNameWidth = false;
     int nameWidth = 400;
 
-    int typeStringWidth = raylib::MeasureText("Type", 22);
+    int typeStringWidth;
     bool changingTypeWidth = false;
     int typeWidth = 150;
 
-    int sizeStringWidth = raylib::MeasureText("Size", 22);
+    int sizeStringWidth;
     bool changingSizeWidth = false;
     int sizeWidth = 100;
 
@@ -32,6 +32,7 @@ private:
     
 public:
     Tab();
+    void init();
 
     void update();
     void draw();

@@ -88,10 +88,10 @@ void TabElement::draw(int idx, int yOffset, int width, int typeOffset, int sizeO
     }else {
         global.extensionsTextures[iconName].Draw(minX + 6, minY + 4, WHITE);
     }
-    raylib::DrawText(drawName, minX + 36, minY + 4, 18, WHITE);
-    raylib::DrawText(drawTypeName, typeOffset, minY + 4, 18, WHITE);
+    raylib::DrawTextEx(global.mainFont, drawName, raylib::Vector2(minX + 32, minY + 2), 22, 0, WHITE);
+    raylib::DrawTextEx(global.mainFont, drawTypeName, raylib::Vector2(typeOffset, minY + 2), 22, 0, WHITE);
     if(fileSize != "") {
-        raylib::DrawText(fileSize, sizeOffset, minY + 4, 18, WHITE);
+        raylib::DrawTextEx(global.mainFont, fileSize, raylib::Vector2(sizeOffset, minY + 2), 22, 0, WHITE);
     }
 }
 

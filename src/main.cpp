@@ -17,6 +17,8 @@ int main(int argc, char *argv[]) {
         &window
     };
 
+    global.tab.init();
+
     while(!window.ShouldClose()) {
 
         // Update
