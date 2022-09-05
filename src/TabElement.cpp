@@ -5,12 +5,25 @@
 
 #include "Global.hpp"
 
+std::vector<std::string> units = { "o", "Kio", "Mio", "Gio", "Tio", "Pio", "Eio", "Zio", "Yoi" };
+
+std::string formatSize(int size, int unit = 0) {
+    if(size >  10000) {
+        return formatSize(size / 1000, unit + 1);
+    }
+    std::string digits = std::to_string(size);
+    for(int i = digits.size() - 3; i > 0; i -= 3) {
+        digits.insert(i, " ");
+    }
+    return digits + " " + units[unit];
+}
+
 TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fullPath) {
 
     switch (type) {
         case FOLDER:
             name = GetFileName(fullPath.c_str());
-            fileSize = -1;
+            fileSize = "";
             ext = "";
 
             drawName = name;
@@ -19,7 +32,7 @@ TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fu
             break;
         case FILE:
             name = GetFileNameWithoutExt(fullPath.c_str());
-            fileSize = GetFileLength(fullPath.c_str());
+            fileSize = formatSize(GetFileLength(fullPath.c_str()));
             const char* extension = GetFileExtension(fullPath.c_str());
             if(extension == NULL) {
                 extension = "";
@@ -77,8 +90,8 @@ void TabElement::draw(int idx, int yOffset, int width, int typeOffset, int sizeO
     }
     raylib::DrawText(drawName, minX + 36, minY + 4, 18, WHITE);
     raylib::DrawText(drawTypeName, typeOffset, minY + 4, 18, WHITE);
-    if(fileSize != -1) {
-        raylib::DrawText(std::to_string(fileSize), sizeOffset, minY + 4, 18, WHITE);
+    if(fileSize != "") {
+        raylib::DrawText(fileSize, sizeOffset, minY + 4, 18, WHITE);
     }
 }
 

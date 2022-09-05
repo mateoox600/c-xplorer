@@ -101,6 +101,10 @@ void Tab::update() {
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !oneSelected) {
         resetSelected();
     }
+
+    if(IsKeyPressed(KEY_F5)) {
+        refresh();
+    }
 }
 
 void Tab::draw() {

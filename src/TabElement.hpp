@@ -15,7 +15,7 @@ private:
     std::string name;
     std::string ext;
     std::string fullPath;
-    int fileSize;
+    std::string fileSize;
 
     ExtensionInfo extInfo;
 
