@@ -25,9 +25,6 @@ TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fu
             name = GetFileName(fullPath.c_str());
             fileSize = "";
             ext = "";
-
-            drawName = name;
-            drawTypeName = "Folder";
             drawTypeColor = raylib::Color(255, 231, 146);
             break;
         case FILE:
@@ -43,15 +40,21 @@ TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fu
                 iconName = extInfo.icon;
                 hasIcon = true;
             }
-
-            drawName = name + ext;
-            drawTypeName = extInfo.type;
             drawTypeColor = extInfo.color;
             break;
     }
+    updateStringsWidth();
 }
 
-bool TabElement::update(int idx, int yOffset, int width, bool disable) {
+std::string reduceStringToWidth(std::string str, int width) {
+    str = str.substr(0, str.size() - 1);
+    if(MeasureTextEx(global.mainFont, (str + "...").c_str(), 22, 0).x > width) {
+        return reduceStringToWidth(str, width);
+    }
+    return str + "...";
+}
+
+bool TabElement::update(int idx, int yOffset, int width, bool disable, bool widthChanged) {
     int height = 26;
     int minX = 16;
     int minY = yOffset + idx * height;
@@ -67,7 +70,36 @@ bool TabElement::update(int idx, int yOffset, int width, bool disable) {
         hovered = false;
     }
 
+    if(widthChanged) {
+        updateStringsWidth();
+    }
+    
+
     return wasSelected;
+}
+
+void TabElement::updateStringsWidth() {
+    int nameStringWidth = MeasureTextEx(global.mainFont, (name + ext).c_str(), 22, 0).x;
+    if(nameStringWidth >= global.tab.getFullNameWidth() - 14 - 32) {
+        drawName = reduceStringToWidth(name + ext, global.tab.getFullNameWidth() - 14 - 32);
+    }else {
+        drawName = name + ext;
+    }
+    std::string typeName;
+    switch (type) {
+        case FILE:
+            typeName = extInfo.type;
+            break;
+        case FOLDER:
+            typeName = "Folder";
+            break; 
+    }
+    int typeStringWidth = MeasureTextEx(global.mainFont, typeName.c_str(), 22, 0).x;
+    if(typeStringWidth >= global.tab.getFullTypeWidth() - 14) {
+        drawTypeName = reduceStringToWidth(typeName, global.tab.getFullTypeWidth() - 14);
+    }else {
+        drawTypeName = typeName;
+    }
 }
 
 void TabElement::draw(int idx, int yOffset, int width, int typeOffset, int sizeOffset) {
@@ -104,6 +136,8 @@ void TabElement::trigger() {
             ExtensionInfo extensionInfo = Extension::getInfoForExt(ext);
             if(extensionInfo.executable != "") {
                 system((extensionInfo.executable + " " + fullPath).c_str());
+            }else {
+                system(fullPath.c_str());
             }
             break;
     }

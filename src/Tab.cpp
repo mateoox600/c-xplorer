@@ -41,9 +41,9 @@ void Tab::update() {
     }
 
     raylib::Vector2 mousePosition = GetMousePosition();
-    int xNamePosition = nameWidth + nameStringWidth + 14;
-    int xTypePosition = xNamePosition + 14 + typeWidth + typeStringWidth;
-    int xSizePosition = xTypePosition + 14 + sizeWidth + sizeStringWidth;
+    int xNamePosition = getFullNameWidth();
+    int xTypePosition = xNamePosition + getFullTypeWidth();
+    int xSizePosition = xTypePosition + getFullSizeWidth();
     if(mousePosition.x >= xNamePosition - 4 && mousePosition.x < xNamePosition + 4 && mousePosition.y >= yOffset + 6 - 4 && mousePosition.y < yOffset + 6 + 30 + 4) {
         SetMouseCursor(MOUSE_CURSOR_RESIZE_EW);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -81,19 +81,21 @@ void Tab::update() {
         if(changingNameWidth) {
             nameWidth = std::max((int) mousePosition.x - nameStringWidth - 14, 0);
         }else if(changingTypeWidth) {
-            int xNamePosition = nameWidth + nameStringWidth + 14;
+            int xNamePosition = getFullNameWidth();
             typeWidth = std::max((int) mousePosition.x - xNamePosition - 14 - typeStringWidth, 0);
         }else if(changingSizeWidth) {
-            int xNamePosition = nameWidth + nameStringWidth + 14;
-            int xTypePosition = xNamePosition + typeWidth + typeStringWidth + 14;
+            int xNamePosition = getFullNameWidth();
+            int xTypePosition = xNamePosition + getFullTypeWidth();
             sizeWidth = std::max((int) mousePosition.x - xTypePosition - 14 - sizeStringWidth, 0);
         }
     }
 
     bool oneSelected = false;
+    int elementWidth = getFullNameWidth() + getFullTypeWidth() + getFullSizeWidth() - 14;
+    bool changingWidth = changingNameWidth || changingTypeWidth || changingSizeWidth;
     for(int i = scrolled; i < elements.size(); i++) {
         TabElement* element = &elements[i];
-        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 26, nameWidth + nameStringWidth + 14 + typeWidth + typeStringWidth, changingNameWidth);
+        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 26, elementWidth, changingWidth, changingWidth);
         if(wasSelected) {
             oneSelected = true;
             if(element->isSelected() && element->getSelectAt() + 0.5 > GetTime()) {
@@ -120,18 +122,18 @@ void Tab::draw() {
     DrawRectangleLines(6, yOffset, screenWidth - 12, screenHeight - yOffset - 6, raylib::Color(43, 43, 43));
 
     raylib::DrawTextEx(global.mainFont, "Name", raylib::Vector2(16, yOffset + 10), 22, 0, WHITE);
-    int nameOffset = nameWidth + nameStringWidth + 16;
+    int nameOffset = getFullNameWidth() + 2;
     DrawRectangle(nameOffset, yOffset + 6, 1, 30, WHITE);
 
     raylib::DrawTextEx(global.mainFont, "Type", raylib::Vector2(nameOffset + 14, yOffset + 10), 22, 0, WHITE);
-    int typeOffset = nameOffset + 14 + typeWidth + typeStringWidth;
+    int typeOffset = nameOffset + getFullTypeWidth();
     DrawRectangle(typeOffset, yOffset + 6, 1, 30, WHITE);
 
     raylib::DrawTextEx(global.mainFont, "Size", raylib::Vector2(typeOffset + 14, yOffset + 10), 22, 0, WHITE);
-    int sizeOffset = typeOffset + 14 + sizeWidth + sizeStringWidth;
+    int sizeOffset = typeOffset + getFullSizeWidth();
     DrawRectangle(sizeOffset, yOffset + 6, 1, 30, WHITE);
 
-    int elementsWidth = nameWidth + nameStringWidth + 14 + typeWidth + typeStringWidth + 14 + sizeWidth + sizeStringWidth;
+    int elementsWidth = getFullNameWidth() + getFullTypeWidth() + getFullSizeWidth() - 14;
     for(int i = scrolled; i < elements.size(); i++) {
         elements[i].draw(i, yOffset + headerHeight - scrolled * 26, elementsWidth, nameOffset + 16, typeOffset + 16);
     }
@@ -167,4 +169,16 @@ void Tab::navigate(std::string path) {
 
 std::vector<std::string> Tab::getCurrentFolderContent() {
     return raylib::LoadDirectoryFiles(currentPath);
+}
+
+int Tab::getFullNameWidth() {
+    return nameStringWidth + nameWidth + 14;
+}
+
+int Tab::getFullTypeWidth() {
+    return typeStringWidth + typeWidth + 14;
+}
+
+int Tab::getFullSizeWidth() {
+    return sizeStringWidth + sizeWidth + 14;
 }

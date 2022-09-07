@@ -33,7 +33,10 @@ private:
 public:
     TabElement(int type, std::string fullPath);
 
-    bool update(int idx, int yOffset, int width, bool disable);
+    bool update(int idx, int yOffset, int width, bool disable, bool widthChanged);
+
+    void updateStringsWidth();
+
     void draw(int idx, int yOffset, int width, int typeOffset, int sizeOffset);
     void trigger();
 

@@ -43,4 +43,7 @@ public:
     void navigate(std::string path);
     
     std::vector<std::string> getCurrentFolderContent();
+    int getFullNameWidth();
+    int getFullTypeWidth();
+    int getFullSizeWidth();
 };
