@@ -1,7 +1,8 @@
-X - Done, o - in progress
+# C-Xplorer Roadmap
 
-## 0.0.1
+## Version 0.0.1
 <hr>
+
 * [X] Adding size calculation for folder
 * [X] Format name, type and size field length so that they don't overflow
     * [ ] Add a way to vew length reduced name via hover in a little "pop-up"
