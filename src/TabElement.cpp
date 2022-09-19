@@ -26,6 +26,7 @@ TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fu
             fileSize = "";
             ext = "";
             drawTypeColor = raylib::Color(255, 231, 146);
+            typeName = "Folder";
             break;
         case FILE:
             name = GetFileNameWithoutExt(fullPath.c_str());
@@ -41,6 +42,7 @@ TabElement::TabElement(int type, std::string fullPath) : type(type), fullPath(fu
                 hasIcon = true;
             }
             drawTypeColor = extInfo.color;
+            typeName = extInfo.type;
             break;
     }
     updateStringsWidth();
@@ -54,7 +56,7 @@ std::string reduceStringToWidth(std::string str, int width) {
     return str + "...";
 }
 
-bool TabElement::update(int idx, int yOffset, int width, bool disable, bool widthChanged) {
+bool TabElement::update(int idx, int yOffset, int width, bool disable, bool widthChanged, int typeOffset) {
     int height = 26;
     int minX = 16;
     int minY = yOffset + idx * height;
@@ -63,7 +65,7 @@ bool TabElement::update(int idx, int yOffset, int width, bool disable, bool widt
 
     if(!disable && mousePosition.x >= minX && mousePosition.x < minX + width && mousePosition.y >= minY && mousePosition.y < minY + height) {
         hovered = true;
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {    
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             wasSelected = true;
         }
     }else if(hovered) {
@@ -74,6 +76,17 @@ bool TabElement::update(int idx, int yOffset, int width, bool disable, bool widt
         updateStringsWidth();
     }
     
+    if((name + ext) != drawName && mousePosition.x >= minX + 30 && mousePosition.x < minX + global.tab.getFullNameWidth() && mousePosition.y >= minY && mousePosition.y < minY + height) {
+        namePopup = true;
+    }else if(namePopup) {
+        namePopup = false;
+    }
+
+    if(typeName != drawTypeName && mousePosition.x >= typeOffset && mousePosition.x <= typeOffset + global.tab.getFullTypeWidth() && mousePosition.y >= minY && mousePosition.y <= minY + height) {
+        typePopup = true;
+    }else if(typePopup) {
+        typePopup = false;
+    }
 
     return wasSelected;
 }
@@ -84,15 +97,6 @@ void TabElement::updateStringsWidth() {
         drawName = reduceStringToWidth(name + ext, global.tab.getFullNameWidth() - 14 - 32);
     }else {
         drawName = name + ext;
-    }
-    std::string typeName;
-    switch (type) {
-        case FILE:
-            typeName = extInfo.type;
-            break;
-        case FOLDER:
-            typeName = "Folder";
-            break; 
     }
     int typeStringWidth = MeasureTextEx(global.mainFont, typeName.c_str(), 22, 0).x;
     if(typeStringWidth >= global.tab.getFullTypeWidth() - 14) {
@@ -124,6 +128,18 @@ void TabElement::draw(int idx, int yOffset, int width, int typeOffset, int sizeO
     raylib::DrawTextEx(global.mainFont, drawTypeName, raylib::Vector2(typeOffset, minY + 2), 22, 0, WHITE);
     if(fileSize != "") {
         raylib::DrawTextEx(global.mainFont, fileSize, raylib::Vector2(sizeOffset, minY + 2), 22, 0, WHITE);
+    }
+
+    raylib::Vector2 mousePosition = GetMousePosition();
+    if(namePopup) {
+        int fullNameWidth = MeasureTextEx(global.mainFont, (name + ext).c_str(), 22, 0).x;
+        mousePosition.DrawRectangle(raylib::Vector2(fullNameWidth + 6, 26), GRAY);
+        raylib::DrawTextEx(global.mainFont, name + ext, raylib::Vector2(mousePosition.x + 3, mousePosition.y + 2), 22, 0, WHITE);
+    }
+    if(typePopup) {
+        int fullTypeWidth = MeasureTextEx(global.mainFont, typeName.c_str(), 22, 0).x;
+        mousePosition.DrawRectangle(raylib::Vector2(fullTypeWidth + 6, 26), GRAY);
+        raylib::DrawTextEx(global.mainFont, typeName, raylib::Vector2(mousePosition.x + 3, mousePosition.y + 2), 22, 0, WHITE);
     }
 }
 

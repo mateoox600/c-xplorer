@@ -95,7 +95,7 @@ void Tab::update() {
     bool changingWidth = changingNameWidth || changingTypeWidth || changingSizeWidth;
     for(int i = scrolled; i < elements.size(); i++) {
         TabElement* element = &elements[i];
-        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 26, elementWidth, changingWidth, changingWidth);
+        bool wasSelected = element->update(i, yOffset + headerHeight - scrolled * 26, elementWidth, changingWidth, changingWidth, getFullNameWidth() + 18);
         if(wasSelected) {
             oneSelected = true;
             if(element->isSelected() && element->getSelectAt() + 0.5 > GetTime()) {

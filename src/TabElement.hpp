@@ -14,6 +14,7 @@ private:
     int type;
     std::string name;
     std::string ext;
+    std::string typeName;
     std::string fullPath;
     std::string fileSize;
 
@@ -29,11 +30,14 @@ private:
     bool hovered = false;
     bool selected = false;
     double selectedAt = -1;
+
+    bool namePopup = false;
+    bool typePopup = false;
     
 public:
     TabElement(int type, std::string fullPath);
 
-    bool update(int idx, int yOffset, int width, bool disable, bool widthChanged);
+    bool update(int idx, int yOffset, int width, bool disable, bool widthChanged, int typeOffset);
 
     void updateStringsWidth();
 
