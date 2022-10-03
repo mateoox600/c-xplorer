@@ -46,4 +46,5 @@ public:
     int getFullNameWidth();
     int getFullTypeWidth();
     int getFullSizeWidth();
+    int getFullTabSize();
 };
