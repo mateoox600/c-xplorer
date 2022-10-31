@@ -122,7 +122,7 @@ void TabElement::draw(int idx, int yOffset, int width, int typeOffset, int sizeO
     if(!hasIcon) {
         DrawRectangle(minX + 6, minY + 4, 18, 18, drawTypeColor);
     }else {
-        global.extensionsTextures[iconName].Draw(minX + 6, minY + 4, WHITE);
+        global.GetOrLoadExtensionTexture(iconName)->Draw(minX + 6, minY + 4, WHITE);
     }
     raylib::DrawTextEx(global.mainFont, drawName, raylib::Vector2(minX + 32, minY + 2), 22, 0, WHITE);
     raylib::DrawTextEx(global.mainFont, drawTypeName, raylib::Vector2(typeOffset, minY + 2), 22, 0, WHITE);
@@ -149,9 +149,8 @@ void TabElement::trigger() {
             global.tab.navigate(name + "/");
             break;
         case FILE:
-            ExtensionInfo extensionInfo = Extension::getInfoForExt(ext);
-            if(extensionInfo.executable != "") {
-                system((extensionInfo.executable + " " + fullPath).c_str());
+            if(extInfo.executable != "") {
+                system((extInfo.executable + " " + fullPath).c_str());
             }else {
                 system(fullPath.c_str());
             }

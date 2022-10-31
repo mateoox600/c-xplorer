@@ -81,14 +81,14 @@ void Tab::update() {
         if(changingNameWidth) {
             int oldState = nameWidth;
             nameWidth = std::max((int) mousePosition.x - nameStringWidth - 14, 0);
-            if(getFullTabSize() >= global.window->GetWidth() - 16) {
+            if(getFullTabSize() >= Constants::screenWidth - 16) {
                 nameWidth = oldState;
             }
         }else if(changingTypeWidth) {
             int oldState = typeWidth;
             int xNamePosition = getFullNameWidth();
             typeWidth = std::max((int) mousePosition.x - xNamePosition - 14 - typeStringWidth, 0);
-            if(getFullTabSize() >= global.window->GetWidth() - 16) {
+            if(getFullTabSize() >= Constants::screenWidth - 16) {
                 typeWidth = oldState;
             }
         }else if(changingSizeWidth) {
@@ -96,7 +96,7 @@ void Tab::update() {
             int xNamePosition = getFullNameWidth();
             int xTypePosition = xNamePosition + getFullTypeWidth();
             sizeWidth = std::max((int) mousePosition.x - xTypePosition - 14 - sizeStringWidth, 0);
-            if(getFullTabSize() >= global.window->GetWidth() - 16) {
+            if(getFullTabSize() >= Constants::screenWidth - 16) {
                 sizeWidth = oldState;
             }
         }
